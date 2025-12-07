@@ -214,6 +214,7 @@
                 <h3>Advanced Live Google Vision Describer</h3>
                 <div class="feature">
                     <video id="video" autoplay></video><br>
+                    <button class="btn" onclick="switchCamera()">Switch Camera</button>
                     <button class="btn" id="startBtn">Start Describing</button>
                     <button class="btn" id="stopBtn">Stop Describing</button>
                 </div>
@@ -469,30 +470,43 @@
         let video = document.getElementById("video");
 let intervalId = null;
 let lastSentence = "";
+let currentFacingMode = "environment"; // back camera default
 
 // Open camera
 let stream = null;
 
 async function startCamera() {
-    if (stream) return; // already running
+    if (stream) {
+        stopCamera(); // clean stop before switching
+    }
 
     try {
         stream = await navigator.mediaDevices.getUserMedia({
             video: {
-                facingMode: { ideal: "environment" } // ✅ BACK CAMERA
+                facingMode: { ideal: currentFacingMode }
             },
             audio: false
         });
 
         video.srcObject = stream;
-        video.setAttribute("playsinline", true); // iOS fix
+        video.setAttribute("playsinline", true);
         await video.play();
 
     } catch (err) {
-        alert("Back camera not accessible. Please allow camera permission.");
+        alert("Camera not accessible. Please allow permission.");
         console.error(err);
     }
 }
+
+function switchCamera() {
+    currentFacingMode =
+        currentFacingMode === "environment"
+            ? "user"
+            : "environment";
+
+    startCamera();
+}
+
 
 // stop camera
 function stopCamera() {
